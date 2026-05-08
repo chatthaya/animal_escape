@@ -1,8 +1,8 @@
 import pygame
 import math
 
-SPRITE_SIZE = 34     # ขยายเป็น 34px
-HITBOX_MARGIN = 7    # margin ด้านข้าง → hitbox = 34 - 7*2 = 20px
+SPRITE_SIZE = 28     # เล็กกว่า tile (30px) เล็กน้อย เพื่อให้เดินลื่น
+HITBOX_MARGIN = 5    # margin ด้านข้าง → hitbox = 28 - 5*2 = 18px
 
 class Player:
     def __init__(self, char_data):
@@ -103,32 +103,32 @@ class Player:
 
         m  = HITBOX_MARGIN
         hs = SPRITE_SIZE - m * 2   # hitbox size
+        TILE = 30
+        # tolerance สำหรับ corner snapping — ถ้า hitbox ล้ำกำแพงไม่เกินค่านี้
+        # จะดันออกอัตโนมัติเพื่อให้ลอดผ่านได้ลื่น
+        SNAP_TOL = 6
 
-        def get_corners(nx, ny):
-            return [
+        def tile_at(px, py):
+            gx, gy = int(px // TILE), int(py // TILE)
+            if 0 <= gx < 26 and 0 <= gy < 20:
+                return map_manager.grid_data[gy][gx]
+            return 2  # ขอบนอก
+
+        def corners_ok(nx, ny, allowed=(0,)):
+            for px, py in [
                 (nx + m,      ny + m),
                 (nx + m + hs, ny + m),
                 (nx + m,      ny + m + hs),
                 (nx + m + hs, ny + m + hs),
-            ]
-
-        def tile_at(px, py):
-            gx, gy = int(px // 30), int(py // 30)
-            if 0 <= gx < 26 and 0 <= gy < 20:
-                return map_manager.grid_data[gy][gx]
-            return 2  # ถือว่าเป็นขอบนอก
-
-        def corners_ok(nx, ny, allowed=(0,)):
-            """True ถ้าทุกมุมของ hitbox อยู่ใน tile ที่อนุญาต"""
-            for px, py in get_corners(nx, ny):
+            ]:
                 if tile_at(px, py) not in allowed:
                     return False
             return True
 
+        # ── wall phase ──────────────────────────────────────────────────
         if self.is_wall_phasing:
             new_x = self.pos[0] + vx
             new_y = self.pos[1] + vy
-            # ขณะ wall phase: ผ่านกำแพงหิน (1) ได้ แต่ขอบไม้ (2) ยังผ่านไม่ได้
             if corners_ok(new_x, new_y, allowed=(0, 1)):
                 self.pos[0], self.pos[1] = new_x, new_y
             return
@@ -136,32 +136,52 @@ class Player:
         new_x = self.pos[0] + vx
         new_y = self.pos[1] + vy
 
-        # ลองเดินทั้ง 2 แกนพร้อมกัน
+        # ── เดินทั้ง 2 แกนพร้อมกัน ──────────────────────────────────────
         if corners_ok(new_x, new_y):
             self.pos[0], self.pos[1] = new_x, new_y
             return
 
-        # Slide แกน X
-        x_ok = vx != 0 and corners_ok(new_x, self.pos[1])
-        # Slide แกน Y
-        y_ok = vy != 0 and corners_ok(self.pos[0], new_y)
-
-        if x_ok:
+        # ── slide แกนเดียว ───────────────────────────────────────────────
+        moved = False
+        if vx != 0 and corners_ok(new_x, self.pos[1]):
             self.pos[0] = new_x
-        if y_ok:
+            moved = True
+        if vy != 0 and corners_ok(self.pos[0], new_y):
             self.pos[1] = new_y
+            moved = True
 
-        # ถ้าทั้งคู่ผ่านไม่ได้เลย ลอง nudge ออกจากมุม
-        if not x_ok and not y_ok and vx != 0 and vy != 0:
-            for frac in (0.5, 0.25):
-                hx = self.pos[0] + vx * frac
-                hy = self.pos[1] + vy * frac
-                if corners_ok(hx, self.pos[1]):
-                    self.pos[0] = hx
-                    break
-                if corners_ok(self.pos[0], hy):
-                    self.pos[1] = hy
-                    break
+        if moved:
+            return
+
+        # ── corner snapping: ดันออกจากมุมกำแพงอัตโนมัติ ─────────────────
+        # ใช้เมื่อเดินแกนเดียวแล้วยังติด เพราะมุมหนึ่งค้างกับ tile ข้าง ๆ
+        # คำนวณ center hitbox ปัจจุบัน แล้วหา snap offset
+        if vx != 0 and not corners_ok(new_x, self.pos[1]):
+            # พยายามเดินแนว X — ดัน Y เล็กน้อยถ้าจำเป็น
+            cx = self.pos[0] + m + hs / 2
+            cy = self.pos[1] + m + hs / 2
+            # หา tile center ที่อยู่บน Y แกน
+            tile_row_center = (int(cy // TILE)) * TILE + TILE / 2
+            offset_y = tile_row_center - cy
+            if abs(offset_y) <= SNAP_TOL:
+                snapped_y = self.pos[1] + offset_y
+                if corners_ok(new_x, snapped_y):
+                    self.pos[0] = new_x
+                    self.pos[1] = snapped_y
+                    return
+
+        if vy != 0 and not corners_ok(self.pos[0], new_y):
+            # พยายามเดินแนว Y — ดัน X เล็กน้อยถ้าจำเป็น
+            cx = self.pos[0] + m + hs / 2
+            cy = self.pos[1] + m + hs / 2
+            tile_col_center = (int(cx // TILE)) * TILE + TILE / 2
+            offset_x = tile_col_center - cx
+            if abs(offset_x) <= SNAP_TOL:
+                snapped_x = self.pos[0] + offset_x
+                if corners_ok(snapped_x, new_y):
+                    self.pos[0] = snapped_x
+                    self.pos[1] = new_y
+                    return
 
     def push_out_of_wall(self, map_manager):
         """ผลักออกจากกำแพงหลังหมดเวลา wall phase
