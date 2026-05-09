@@ -176,3 +176,14 @@ The following features were listed in the original proposal but were **not imple
 | **`patrol()` method** — Wolf roams a predefined path when the player is out of range | Not implemented — the wolf always actively chases the player via A\* regardless of distance | A patrol state was not necessary for gameplay balance; continuous A\* pursuit created enough tension without idle roaming behavior. |
 | **Low HP screen flash effect** — A red flashing overlay appears when the player's HP drops below 50 | Not implemented — there is no screen flash effect in the final code | This visual effect was deprioritized during development. The HP bar already communicates low health clearly enough for the current scope. |
 | **Difficulty scaling: spawn rate increases every 10 points** | Only **wolf speed** increases every 10 points — item/trap spawn rate remains constant | Dynamically adjusting spawn rate introduced balancing issues during testing. Wolf speed scaling alone was sufficient to increase difficulty progressively. |
+
+---
+
+## External Sources
+
+Acknowledge to:
+
+1. A* Pathfinding algorithm — adapted from standard heapq-based implementation
+2. Pygame documentation — https://www.pygame.org/docs/
+3. Matplotlib documentation — https://matplotlib.org/stable/
+4. Character and item artwork — Original artwork and curated assets from Pinterest.
