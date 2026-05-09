@@ -12,7 +12,7 @@ All data is collected automatically during gameplay and stored in `stats.csv`. T
 
 The "All Graphs" tab displays five charts arranged in a 2×3 grid, all rendered on a dark Catppuccin-inspired theme. At a glance, players can see item usage patterns, movement zones, mana management, combat damage history, and proximity to the enemy wolf.
 
-*(Replace this placeholder with your actual screenshot)*
+![All Graphs](screenshots/visualization/overview_all_graphs.png)
 
 ---
 

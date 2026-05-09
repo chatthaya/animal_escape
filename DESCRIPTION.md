@@ -30,23 +30,23 @@
   **Gameplay**
   | Main Menu | Character Selection | In-Game Maze |
   |---|---|---|
-  | ![Main Menu](screenshots/main_menu.png) | ![Character Selection](screenshots/character_selection.png) | ![Gameplay](screenshots/gameplay_maze.png) |
+  | ![Main Menu](screenshots/game_play/main_menu.png) | ![Character Selection](screenshots/game_play/character_selection.png) | ![Gameplay](screenshots/game_play/gameplay_maze.png) |
 
   | Pause Menu | Game Over |
   |---|---|
-  | ![Pause Menu](screenshots/pause_menu.png) | ![Game Over](screenshots/game_over.png) |
+  | ![Pause Menu](screenshots/game_play/pause_menu.png) | ![Game Over](screenshots/game_play/game_over.png) |
 
   **Statistics Viewer**
   | All Graphs Overview | Summary Stats Table |
   |---|---|
-  | ![All Graphs](visualization/overview_all_graphs.png) | ![Summary](visualization/table_summary_stats.png) |
+  | ![All Graphs](screenshots/visualization/overview_all_graphs.png) | ![Summary](screenshots/visualization/table_summary_stats.png) |
 
   | Item Collection | Position Zone | Mana Usage | HP Over Time | Enemy Proximity |
   |---|---|---|---|---|
-  | ![Pie](visualization/item_collection.png) | ![Zone](visualization/bar_position_zone.png) | ![Mana](visualization/line_mana_usage.png) | ![HP](visualization/hp_overtime.png) | ![Proximity](visualization/bar_enemy_proximity.png) |
+  | ![Pie](screenshots/visualization/item_collection.png) | ![Zone](screenshots/visualization/bar_position_zone.png) | ![Mana](screenshots/visualization/line_mana_usage.png) | ![HP](screenshots/visualization/hp_overtime.png) | ![Proximity](screenshots/visualization/bar_enemy_proximity.png) |
 
 
-- **Proposal:** [Project Proposal](docs/proposal.pdf)
+- **Proposal:** [proposal](proposal.pdf)
 
 - **YouTube Presentation:** [Link here — replace with your video URL]
   - (1) Demo of all game and statistics features

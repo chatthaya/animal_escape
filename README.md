@@ -121,6 +121,21 @@ Pick one of three animals, then press **START!**
 
 ---
 
+## Unfinished Works
+
+All planned features within the defined project scope have been fully implemented, including:
+- A* pathfinding wolf AI
+- 3 playable characters with unique stats
+- 6 collectible item types with distinct effects
+- Water trap environmental hazards
+- Dynamic difficulty scaling (wolf speed)
+- CSV-based statistics logging
+- Statistics viewer with 5 graphs and a summary table
+
+Features listed in the original proposal but intentionally revised during development are documented in [`DESCRIPTION.md` — Section 6: Changed Proposed Features](./DESCRIPTION.md).
+
+---
+
 ## External Sources
 
 Acknowledge to:
