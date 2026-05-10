@@ -48,7 +48,7 @@
 
 - **Proposal:** [proposal](proposal.pdf)
 
-- **YouTube Presentation:** [Link here — replace with your video URL]
+- **YouTube Presentation:** [(https://youtu.be/gnrocYkpy6E?si=i9WobyWgSux44Fh5)]
   - (1) Demo of all game and statistics features
   - (2) Explanation of class design and OOP usage
   - (3) Explanation of statistics and data visualization

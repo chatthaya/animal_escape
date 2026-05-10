@@ -1,8 +1,8 @@
 import pygame
 import math
 
-SPRITE_SIZE = 28     # เล็กกว่า tile (30px) เล็กน้อย เพื่อให้เดินลื่น
-HITBOX_MARGIN = 5    # margin ด้านข้าง → hitbox = 28 - 5*2 = 18px
+SPRITE_SIZE = 28     
+HITBOX_MARGIN = 5   
 
 class Player:
     def __init__(self, char_data):
@@ -28,7 +28,6 @@ class Player:
         self.invulnerable_timer = 0
         self.regen_timer = 0
         
-        # โหลดรูปด้วย smoothscale เพื่อภาพคมชัด
         raw = pygame.image.load(char_data["img_file"]).convert_alpha()
         big = pygame.transform.smoothscale(raw, (SPRITE_SIZE * 3, SPRITE_SIZE * 3))
         self.img_right = pygame.transform.smoothscale(big, (SPRITE_SIZE, SPRITE_SIZE))
@@ -77,11 +76,9 @@ class Player:
                 self.mana += 0.1
 
     def take_damage(self, amount):
-        """ลดเลือดตาม amount ที่ส่งมา — หลังโดนดาเมจอมตะ 2 วินาที (120 เฟรม)
-        Logic โล่จัดการที่ฝั่งผู้โจมตีก่อนเรียกฟังก์ชันนี้"""
         if self.invulnerable_timer <= 0:
             self.hp -= amount
-            self.invulnerable_timer = 120  # อมตะ 2 วินาที
+            self.invulnerable_timer = 120 
             return True
         return False
 
@@ -102,17 +99,15 @@ class Player:
             return
 
         m  = HITBOX_MARGIN
-        hs = SPRITE_SIZE - m * 2   # hitbox size
+        hs = SPRITE_SIZE - m * 2   
         TILE = 30
-        # tolerance สำหรับ corner snapping — ถ้า hitbox ล้ำกำแพงไม่เกินค่านี้
-        # จะดันออกอัตโนมัติเพื่อให้ลอดผ่านได้ลื่น
         SNAP_TOL = 6
 
         def tile_at(px, py):
             gx, gy = int(px // TILE), int(py // TILE)
             if 0 <= gx < 26 and 0 <= gy < 20:
                 return map_manager.grid_data[gy][gx]
-            return 2  # ขอบนอก
+            return 2
 
         def corners_ok(nx, ny, allowed=(0,)):
             for px, py in [
@@ -125,7 +120,6 @@ class Player:
                     return False
             return True
 
-        # ── wall phase ──────────────────────────────────────────────────
         if self.is_wall_phasing:
             new_x = self.pos[0] + vx
             new_y = self.pos[1] + vy
@@ -136,12 +130,10 @@ class Player:
         new_x = self.pos[0] + vx
         new_y = self.pos[1] + vy
 
-        # ── เดินทั้ง 2 แกนพร้อมกัน ──────────────────────────────────────
         if corners_ok(new_x, new_y):
             self.pos[0], self.pos[1] = new_x, new_y
             return
 
-        # ── slide แกนเดียว ───────────────────────────────────────────────
         moved = False
         if vx != 0 and corners_ok(new_x, self.pos[1]):
             self.pos[0] = new_x
@@ -153,14 +145,9 @@ class Player:
         if moved:
             return
 
-        # ── corner snapping: ดันออกจากมุมกำแพงอัตโนมัติ ─────────────────
-        # ใช้เมื่อเดินแกนเดียวแล้วยังติด เพราะมุมหนึ่งค้างกับ tile ข้าง ๆ
-        # คำนวณ center hitbox ปัจจุบัน แล้วหา snap offset
         if vx != 0 and not corners_ok(new_x, self.pos[1]):
-            # พยายามเดินแนว X — ดัน Y เล็กน้อยถ้าจำเป็น
             cx = self.pos[0] + m + hs / 2
             cy = self.pos[1] + m + hs / 2
-            # หา tile center ที่อยู่บน Y แกน
             tile_row_center = (int(cy // TILE)) * TILE + TILE / 2
             offset_y = tile_row_center - cy
             if abs(offset_y) <= SNAP_TOL:
@@ -171,7 +158,6 @@ class Player:
                     return
 
         if vy != 0 and not corners_ok(self.pos[0], new_y):
-            # พยายามเดินแนว Y — ดัน X เล็กน้อยถ้าจำเป็น
             cx = self.pos[0] + m + hs / 2
             cy = self.pos[1] + m + hs / 2
             tile_col_center = (int(cx // TILE)) * TILE + TILE / 2
@@ -184,8 +170,6 @@ class Player:
                     return
 
     def push_out_of_wall(self, map_manager):
-        """ผลักออกจากกำแพงหลังหมดเวลา wall phase
-        สแกนทุกมุม hitbox แล้วหาช่องว่างที่ใกล้ที่สุด"""
         m  = HITBOX_MARGIN
         hs = SPRITE_SIZE - m * 2
 
@@ -204,27 +188,23 @@ class Player:
             return False
 
         if not corners_in_wall():
-            return  # ไม่ได้ติดกำแพง ไม่ต้องทำอะไร
+            return
 
-        # หา tile กึ่งกลางตัวละคร
         cx = int((self.pos[0] + SPRITE_SIZE // 2) // 30)
         cy = int((self.pos[1] + SPRITE_SIZE // 2) // 30)
 
-        # ขยายวงค้นหาทีละ 1 tile จนเจอที่ว่าง
         for r in range(1, 10):
             for dx in range(-r, r + 1):
                 for dy in range(-r, r + 1):
                     if abs(dx) != r and abs(dy) != r:
-                        continue  # เช็คแค่ขอบนอกของวง r
+                        continue  
                     nx, ny = cx + dx, cy + dy
                     if not (0 <= nx < 26 and 0 <= ny < 20):
                         continue
                     if map_manager.grid_data[ny][nx] != 0:
                         continue
-                    # วางผู้เล่นตรงกลาง tile นั้น
                     tx = nx * 30 + (30 - SPRITE_SIZE) // 2
                     ty = ny * 30 + (30 - SPRITE_SIZE) // 2
-                    # ตรวจสอบว่า hitbox ทั้งหมดอยู่ใน tile ว่างจริง
                     ok = True
                     for px, py in [
                         (tx + m,      ty + m),
@@ -262,7 +242,6 @@ class Player:
             self.regen_timer = 0
 
     def add_score(self, amount):
-        """เพิ่มคะแนน — แกะได้คูณสอง"""
         if self.char_type == "Sheep":
             self.score += amount * 2
         else:
